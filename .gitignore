@@ -1,0 +1,14 @@
+.gradle/
+.idea/
+build/
+out/
+*.iml
+*.class
+.env
+
+# Local configuration and credentials
+src/main/resources/application.properties
+src/main/resources/application-*.properties
+.env
+.env.*
+!.env.example

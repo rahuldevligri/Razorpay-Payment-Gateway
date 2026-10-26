@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	<title>Payment Page</title>
+</head>
+<body>
+<h1>Payment Page</h1>
+<div>
+	<button class="payment-amount" data-amount="100">Pay ₹100</button>
+	<button class="payment-amount" data-amount="500">Pay ₹500</button>
+	<button class="payment-amount" data-amount="1000">Pay ₹1000</button>
+</div>
+
+<script>
+	$(document).ready(function() {
+        $(".payment-amount").click(function() {
+            var amount = $(this).data("amount") * 100; // Convert rupees to paisa
+            startPayment(amount);
+        });
+    });
+
+    function startPayment(amount) {
+        console.log("Payment started..");
+        if (amount == "" || amount == null || amount == 0) {
+            swal("Failed !!", "Amount is required!!", "error");
+            return;
+        }
+
+        // Make the AJAX request to create payment
+        $.ajax({
+            url: '/payment',
+            data: { amount: amount },
+            type: 'POST',
+            dataType: 'json',
+            success: function(response) {
+                console.log(response);
+                if(response.status ==  "created"){
+                    let options={
+                        key:'rzp_test_QvfhRP9slPcend',
+                        amount: response.amount,
+                        currency: 'INR',
+                        name: 'Rahul Payment Gateway',
+                        image: 'https://pbs.twimg.com/profile_images/1701178608805638144/qoUeXSAM_400x400.jpg',
+                        order_id:response.id,
+                        method:response.method,
+                        handler:function(response){
+                        console.log(response.razorpay_payment_id);
+								console.log(response.razorpay_order_id);
+								console.log(response.razorpay_method);
+								console.log(response.method);
+								console.log(response.status);
+								console.log(response.source);
+								console.log(response.amount);
+								console.log(response.currency);
+								console.log(response.success);
+								console.log(response.type);
+								console.log(response.reason);
+								console.log(response.razorpay_signature);
+                            console.log('Payment successful !!');
+                            swal("Good job!", "congrates !! payment successful !!", "success");
+                        },
+                        "prefill": {
+                            "name": "",
+                            "email": "",
+                            "contact": ""
+                        },
+                        "notes": {
+                            "address": "Razorpay"
+                        },
+                        "theme": {
+                            "color": "#F37254"
+                        },
+                    };
+                    let rzp=new Razorpay(options);
+
+                    rzp.on('payment.failed', function (response){
+                        console.log(response.error.code);
+                        console.log(response.error.description);
+                        console.log(response.error.source);
+                        console.log(response.error.step);
+                        console.log(response.error.reason);
+                        console.log(response.error.metadata.order_id);
+                        console.log(response.error.metadata.payment_id);
+                        console.log(response.error.metadata.razorpay_method);
+                        console.log(response.error.metadata.status);
+                        console.log(response.error.metadata.method);
+                        console.log(response.error.amount);
+                        console.log(response.error.currency);
+                        console.log(response.error.invoice);
+                        console.log(response.error.razorpay_payment_id);
+                        console.log(response.error.method);
+                        console.log(response.error.response);
+                        console.log(response.error.reason);
+                        console.log(response.error.responseText);
+                        console.log(response.error.source);
+                        console.log(response.error.status);
+                        console.log(response.error.success);
+                        swal("Faild!", "Oops payment failed !!!", "error");
+                    });
+                    rzp.open();
+                }
+            },
+            error: function(error) {
+                console.log(error.responseText);
+                alert("Something went wrong!!");
+            }
+        });
+    }
+</script>
+</body>
+</html>
